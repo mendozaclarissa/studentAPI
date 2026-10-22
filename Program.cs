@@ -3,9 +3,11 @@ using StudentAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<StudentDbContext>(options =>
-    options.UseNpgsql(connectionString));
+// Add services to the container.
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+?? throw new InvalidOperationException("Set Connection_DefaultConnection in the Evnvironment");
+builder.Services.AddDbContext<StudentDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
