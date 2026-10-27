@@ -3,37 +3,38 @@ using StudentAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DATABASE CONNECTION
-
-var connectionString = builder.Configuration
-    .GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException(
-        "DefaultConnection is not configured.");
-
-builder.Services.AddDbContext<StudentDbContext>(options =>
-    options.UseNpgsql(connectionString));
-
-// CONTROLLERS
-
-builder.Services.AddControllers();
-
-// CORS CONFIGURATION
+// Add services to the container.
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
-// BUILD APPLICATION
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+?? throw new InvalidOperationException("Set Connection_DefaultConnection in the Evnvironment");
+builder.Services.AddDbContext<StudentDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
 app.UseCors("AllowFrontend");
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
